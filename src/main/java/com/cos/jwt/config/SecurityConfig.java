@@ -24,6 +24,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final CorsFilter corsFilter;
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // Security 필터들이 동작하기 전에 내가 만든 필터가 동작해야 한다.
         http.addFilterBefore(new MyFilter3(), SecurityContextPersistenceFilter.class);
         // JWT 기본 사용법
         // csrf, STATELESS, formLogin, httpBasic은 모두 disable 처리
