@@ -1,4 +1,7 @@
 package com.cos.jwt.config.jwt;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+
 
 import com.cos.jwt.config.auth.PrincipalDetails;
 import com.cos.jwt.model.User;
@@ -17,6 +20,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
+
+
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -52,6 +58,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         System.out.println("JwtAuthenticationFilter.successfulAuthentication -> 인증이 완료되었음");
-        super.successfulAuthentication(request, response, chain, authResult);
+        PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
+
+        //JWT 토큰 만들기 RSA X, HMAC512 방식
+        String jwtToken = JWT.create()
+                .withSubject("kandela token")
+                .withExpiresAt(new Date(System.currentTimeMillis()+(60000 * 10)))
+                .withClaim("id", principalDetails.getUser().getId())
+                .withClaim("username", principalDetails.getUser().getUsername())
+                .sign(Algorithm.HMAC512("kandela"));
+
+        response.addHeader("Authorization", "Bearer " + jwtToken);
     }
 }
